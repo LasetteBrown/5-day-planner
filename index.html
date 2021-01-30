@@ -21,18 +21,131 @@
   </header>
   <div class="container">
     <!-- Timeblocks go here -->
+
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script> -->
+  <script src="./Assets/js/luxon.js"></script>
   <script>
 
-    //create a timeblock for every hour of the day
-    //eachblock should display the hour
-    //and allow for infoto be input by the user
-    //with abutton that saves the input
-    //each timeblock should access the current time and chance color accordingly
-    //The current day section should access the current date and display it
+    // create a variable that knows what the date it!
+    var now = luxon.DateTime.local();
+
+    //create an array to determine what hours of the day I will use
+    var dailyHours = ["7AM", "8AM", "9AM", "10AM", "11AM", "12PM", "1PM", "2PM", "3PM", "4PM", "5PM", "6PM"]
+
+    //create an array to hold all the events for the day
+    var eventsArray = []
+    //fill that array with previously saved events
+    eventsArray = JSON.parse(localStorage.getItem("events"));
+    //unless there is nothing saved...
+    if (eventsArray === null) {
+      eventsArray = []
+    }
+
+    //display today's date in the current day area
+    $("#currentDay").text(now.toLocaleString({ year: 'numeric', month: 'long', day: 'numeric', }));
+
+
+    //a function that stores the events array into local storage
+    function storeEvents() {
+      window.localStorage.setItem("events", JSON.stringify(eventsArray));
+
+    }
+
+    //a function that allows me to search through an array for a given value
+    function search(hourIndex, eventsArray) {
+      for (var t = 0; t < eventsArray.length; t++) {
+
+        if (parseInt(eventsArray[t].timeIndex) === parseInt(hourIndex)) {
+
+          return eventsArray[t];
+
+        }
+      }
+    }
+
+    //for each hour in my daily hours array, create a row that displays allrelevent info
+    for (var i = 0; i < dailyHours.length; i++) {
+      //create a div for the row
+      var hourDiv = $("<div>");
+      //make sure it has the correct classes
+      hourDiv.addClass("row time-block");
+      //and useable indexes
+      hourDiv.attr("data-hour", i + 7);
+      hourDiv.attr("data-index", i)
+      //and append it to the DOM
+      $(".container").append(hourDiv)
+
+      //create a subsection that displays which hour it is
+      var tellHour = $("<div>");
+      tellHour.text(dailyHours[i])
+      tellHour.addClass("col-md-1 hour");
+      hourDiv.append(tellHour)
+
+      //create a text area that allows the user to enter events
+      var textArea = $("<textarea>");
+      textArea.addClass("col-md-10 description")
+      //if there is already a saved event for that hour then input that text
+      var thingy = search(i + 7, eventsArray)
+      if (thingy === undefined) {
+        textArea.val("")
+      } else {
+        textArea.val(thingy.agendaItem)
+      }
+      hourDiv.append(textArea)
+
+      //create a save button for each hour
+      var saveBtn = $("<button>");
+      saveBtn.addClass("col-md-1 saveBtn")
+      saveBtn.text("SAVE")
+      hourDiv.append(saveBtn)
+
+      //determine if each row is in the past, present and future and add the appropriate class
+      if (hourDiv.data("hour") < now.hour) {
+        hourDiv.addClass("past")
+
+      } else if (hourDiv.data("hour") === now.hour) {
+        hourDiv.addClass("present")
+
+      } else {
+        hourDiv.addClass("future")
+
+      }
+    }
+
+    //add an event listener to the save button
+    $(".saveBtn").on("click", function () {
+      //this variable finds the data index for the row of the button that was clicked
+      var index = event.target.parentElement.getAttribute("data-index");
+
+      //This variable creates an object that holds the hour and text of the event
+      var myEvent = {
+        timeIndex: event.target.parentElement.getAttribute("data-hour"),
+        agendaItem: $(".time-block")[index].children[1].value.trim()
+
+      };
+
+      //this variable searches to see if there has been an event previously stored at that time
+      var existingObject = search(myEvent.timeIndex, eventsArray)
+
+      //if there has been no previous event saved,
+      if (existingObject === undefined) {
+        //then save this object to the events array
+        eventsArray.push(myEvent);
+
+      } else {
+        //if not, then remove the pre-existing event 
+        var removedEvents = eventsArray.splice(eventsArray.indexOf(existingObject), 1)
+        //and add the new one
+        eventsArray.push(myEvent);
+      }
+      //run the function that stores things to localstorage
+      storeEvents();
+    })
+
+
 
 
   </script>
