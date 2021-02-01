@@ -21,7 +21,8 @@ https://lasettebrown.github.io/5-day-planner/
 
 When the site loads the user will be presented with a scheduler for the day. The page will display today's date at the top and list blocks of time in units of one hour. The scheduler starts at 7:00am and ends at 7:00pm. 
 
-![Day Scheduler](./assets/images/lasettebrown.github.io_5-day-planner_.png)
+![Day Scheduler](https://user-images.githubusercontent.com/74556384/106417795-146feb00-6412-11eb-8027-4e6a191867d9.png)
+
 
 The user may click into the text area within any hourblock listed in order to add text to that space. Clicking the 'SAVE' button to the right of each hourblock will save any text entered into the user's local storage so that the text remains even if they refresh the page or navigae away from it.
 
